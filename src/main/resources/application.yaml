@@ -1,6 +1,8 @@
 spring:
   application:
     name: ExternalApi
+  config:
+    import: optional:file:.env[.properties]
 
 weather:
   api:
