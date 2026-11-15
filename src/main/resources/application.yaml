@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: ExternalApi
+
+weather:
+  api:
+    key: ${WEATHER_API_KEY}
+    base-url: https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline
+    unit-group: metric
