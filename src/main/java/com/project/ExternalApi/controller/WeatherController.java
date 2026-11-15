@@ -23,7 +23,7 @@ public class WeatherController {
         if (city == null || city.trim().isEmpty()) {
             return ResponseEntity.badRequest().build();
         }
-        WeatherSummary response = weatherService.getWeatherSummary(city.trim());
+        WeatherSummary response = weatherService.getWeather(city.trim());
         return ResponseEntity.ok(response);
     }
 }
