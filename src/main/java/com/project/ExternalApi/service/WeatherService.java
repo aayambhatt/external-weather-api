@@ -51,13 +51,17 @@ public class WeatherService {
     }
 
     private WeatherSummary fetchAndParse(String city) {
+        //Building the URL
         String uri = UriComponentsBuilder.fromPath("/{city}")
                 .queryParam("unitGroup", unitGroup)
                 .queryParam("key", apiKey)
                 .buildAndExpand(city)
                 .toUriString();
 
+        // Making the HTTP call
         Map<String, Object> res = restClient.get().uri(uri).retrieve().body(Map.class);
+
+        // parse the response:
 
         var current = (Map<String, Object>) res.get("currentConditions");
         var days = (List<Map<String, Object>>) res.get("days");
