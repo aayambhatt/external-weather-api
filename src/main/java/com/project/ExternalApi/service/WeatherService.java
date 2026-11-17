@@ -18,22 +18,29 @@ public class WeatherService {
 
     private final RestClient restClient;
     private final RedisTemplate<String, String> redisTemplate;
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Value("${weather.api.key}") private String apiKey;
-    @Value("${weather.api.unit-group}") private String unitGroup;
+    private final ObjectMapper objectMapper;
+    private final String apiKey;
+    private final String unitGroup;
 
     public WeatherService(
             RestClient.Builder builder,
             @Value("${weather.api.base-url}") String baseUrl,
-            RedisTemplate<String, String> redisTemplate
+            @Value("${weather.api.key}") String apiKey,
+            @Value("${weather.api.unit-group}") String unitGroup,
+            RedisTemplate<String, String> redisTemplate,
+            ObjectMapper objectMapper
     ) {
         this.restClient = builder.baseUrl(baseUrl).build();
         this.redisTemplate = redisTemplate;
+        this.objectMapper = objectMapper;
+        this.apiKey = apiKey;
+        this.unitGroup = unitGroup;
     }
 
     public WeatherSummary getWeather(String city) {
-        String cacheKey = "weather:" + city;
+        // Normalize: trim + lowercase for cache key consistency
+        String normalizedCity = city.trim().toLowerCase();
+        String cacheKey = "weather:" + normalizedCity;
 
         // 1. CHECK CACHE
         String cached = redisTemplate.opsForValue().get(cacheKey);
@@ -42,7 +49,7 @@ public class WeatherService {
         }
 
         // 2. CACHE MISS → Call API
-        WeatherSummary summary = fetchAndParse(city);
+        WeatherSummary summary = fetchAndParse(normalizedCity);
 
         // 3. STORE IN CACHE (12 hour TTL)
         redisTemplate.opsForValue().set(cacheKey, toJson(summary), Duration.ofHours(12));
